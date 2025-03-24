@@ -1,3 +1,15 @@
+
+!!!
+
+Hab AI benutzt um Tailwind klassen zu implementieren und allgemein Hilfe wie ein "Senior Web Dev" den ich alles Fragen kann
+kein blindes COPY n PASTE
+
+
+!!!
+
+
+
+
 So far, we've changed:
 
 App.jsx
@@ -6,6 +18,9 @@ DailyGoalsPage.jsx
 CalendarPage.jsx
 
 We also needed to install react-router-dom which was missing.
+
+
+
 
 
 
