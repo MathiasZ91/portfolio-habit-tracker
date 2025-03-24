@@ -22,7 +22,7 @@ const Navbar = () => {
   ];
 
   return (
-    <nav>
+    <nav className="hidden md:block fixed top-0 left-0 w-full bg-white shadow-sm z-40 transition-opacity duration-300 ease-in-out">
       {/* Mobile Navigation (nur auf kleinen Bildschirmen sichtbar) */}
       {/* Die Klasse sm:hidden versteckt dieses Element auf Bildschirmen, die breiter als 'small' sind */}
       <div className="sm:hidden">

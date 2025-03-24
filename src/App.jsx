@@ -30,9 +30,13 @@ import LoginPage from './pages/LoginPage';
 const Root = () => {
   return (
     <>
-      <Navbar />  {/* Navigation wird immer oben angezeigt */}
-      <Outlet />  {/* Hier werden die untergeordneten Routen dynamisch angezeigt */}
-      <Footer />  {/* Footer wird immer unten angezeigt */}
+      <div className="flex flex-col min-h-screen">
+      <Navbar />  {/* Navigation wird immer oben angezeigt (auf Desktop) */}
+      <main className="flex-grow pt-16 md:pt-20 pb-16 md:pb-0">
+        <Outlet />  {/* Hier werden die untergeordneten Routen dynamisch angezeigt */}
+      </main>
+      <Footer />  {/* Footer wird immer unten angezeigt (+ Mobile-Navigation) */}
+    </div>
     </>
   );
 };
