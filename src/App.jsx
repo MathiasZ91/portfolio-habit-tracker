@@ -1,9 +1,87 @@
-function App() {
+// React Router v7 Imports
+import { 
+  createBrowserRouter,  // Erstellt den Router für die Browser-Navigation
+  RouterProvider,       // Verbindet den Router mit der React-App
+  Outlet                // Platzhalter für die Anzeige der untergeordneten Routen
+} from 'react-router';  // Wichtig: "dom" Subpackage für DOM-spezifische Komponenten
+
+// Gemeinsame Komponenten
+import Navbar from './components/common/Navbar';  // Navigation, erscheint auf allen Seiten oben
+import Footer from './components/common/Footer';  // Footer, erscheint auf allen Seiten unten
+
+// Seitenkomponenten
+import DailyGoalsPage from './pages/DailyGoalsPage';  // Hauptseite für tägliche Ziele
+import CalendarPage from './pages/CalendarPage';      // Kalenderseite
+
+/**
+ * Root-Layout Komponente
+ * 
+ * Diese Komponente definiert das grundlegende Layout der App:
+ * - Navbar (immer oben)
+ * - Dynamischer Inhalt über den Outlet
+ * - Footer (immer unten)
+ * 
+ * Das Layout bleibt konstant, während sich nur der Inhalt im Outlet ändert.
+ */
+const Root = () => {
   return (
-    <div className="App">
-      <h1 className="text-3xl font-bold text-blue-500">Hello, World!!!!!!</h1>
-    </div>
+    <>
+      <Navbar />  {/* Navigation wird immer oben angezeigt */}
+      <Outlet />  {/* Hier werden die untergeordneten Routen dynamisch angezeigt */}
+      <Footer />  {/* Footer wird immer unten angezeigt */}
+    </>
   );
-}
+};
+
+/**
+ * Router-Konfiguration
+ * 
+ * Hier definieren wir:
+ * 1. Eine Hauptroute ("/"), die das Root-Layout rendert
+ * 2. Untergeordnete Routen, die im Outlet angezeigt werden:
+ *    - Index-Route (Standardseite beim Besuch von "/")
+ *    - Calendar-Route (beim Besuch von "/calendar")
+ */
+const router = createBrowserRouter([  
+  {
+    path: "/",           // Die Hauptroute der App
+    element: <Root />,   // Zeigt das Root-Layout mit Navbar, Outlet und Footer an
+    children: [          // Untergeordnete Routen, die im Outlet erscheinen
+      {
+        index: true,     // Dies ist die Standardroute (wenn genau "/" besucht wird)
+        element: <DailyGoalsPage />  // Zeigt die DailyGoalsPage im Outlet an
+      },
+      {
+        path: "calendar", // Diese Route wird bei "/calendar" aktiviert
+        element: <CalendarPage />    // Zeigt die CalendarPage im Outlet an
+      }
+    ]
+  }
+]);
+
+/**
+ * Haupt-App-Komponente
+ * 
+ * Diese Komponente verbindet die gesamte Router-Konfiguration 
+ * mit unserer React-Anwendung.
+ */
+const App = () => {
+  return <RouterProvider router={router} />;  // Übergibt die Router-Konfiguration an die App
+};
 
 export default App;
+
+/**
+ * Wie alles zusammenarbeitet:
+ * 
+ * 1. App rendert den RouterProvider mit unserer Router-Konfiguration
+ * 2. Wenn ein Benutzer die App besucht, schaut der Router auf die URL:
+ *    - Bei "/" wird die Root-Komponente mit DailyGoalsPage im Outlet angezeigt
+ *    - Bei "/calendar" wird die Root-Komponente mit CalendarPage im Outlet angezeigt
+ * 3. Navbar und Footer bleiben konstant, nur der Inhalt im Outlet ändert sich
+ * 
+ * Wichtige Konzepte:
+ * - Der Outlet ist ein "Fenster" für die untergeordneten Routen
+ * - Die children-Routen sind die verschiedenen Inhalte, die im Outlet erscheinen
+ * - Nested Routing erlaubt uns, ein konsistentes Layout zu haben
+ */
