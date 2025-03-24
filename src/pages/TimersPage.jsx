@@ -1,4 +1,4 @@
-export default function TimersPage (){
+function TimersPage (){
 
     return (
       <div>
@@ -9,3 +9,4 @@ export default function TimersPage (){
   
   
   }
+  export default TimersPage;

@@ -12,6 +12,10 @@ import Footer from './components/common/Footer';  // Footer, erscheint auf allen
 // Seitenkomponenten
 import DailyGoalsPage from './pages/DailyGoalsPage';  // Hauptseite für tägliche Ziele
 import CalendarPage from './pages/CalendarPage';      // Kalenderseite
+import TimersPage from './pages/TimersPage';
+import TodoListPage from './pages/TodoListPage';
+import LoginPage from './pages/LoginPage';
+
 
 /**
  * Root-Layout Komponente
@@ -54,6 +58,18 @@ const router = createBrowserRouter([
       {
         path: "calendar", // Diese Route wird bei "/calendar" aktiviert
         element: <CalendarPage />    // Zeigt die CalendarPage im Outlet an
+      },
+      {
+        path: "timers", // Diese Route wird bei "/calendar" aktiviert
+        element: <TimersPage />    // Zeigt die CalendarPage im Outlet an
+      },
+      {
+        path: "todo-list", // Diese Route wird bei "/calendar" aktiviert
+        element: <TodoListPage />    // Zeigt die CalendarPage im Outlet an
+      },
+      {
+        path: "login", // Diese Route wird bei "/calendar" aktiviert
+        element: <LoginPage />    // Zeigt die CalendarPage im Outlet an
       }
     ]
   }
