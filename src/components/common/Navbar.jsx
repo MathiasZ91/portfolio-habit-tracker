@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router';
+import { useEffect } from 'react';
 
 /**
  * Navigationskomponente mit responsivem Design
@@ -10,6 +11,25 @@ const Navbar = () => {
   // Der useLocation-Hook gibt uns Zugriff auf den aktuellen URL-Pfad
   // Dadurch wissen wir, welcher Navigationspunkt als aktiv hervorgehoben werden soll
   const location = useLocation();
+  
+  // Streak aus dem localStorage laden und regelmäßig aktualisieren
+  useEffect(() => {
+    const updateStreak = () => {
+      const storedStreak = localStorage.getItem('habitsStreak');
+      if (storedStreak) {
+        // Streak-Wert wird aus dem localStorage geladen, aber nicht verwendet
+        parseInt(JSON.parse(storedStreak), 10);
+      }
+    };
+    
+    // Initial laden
+    updateStreak();
+    
+    // Regelmäßiges Überprüfen statt Event-Listener
+    const intervalId = setInterval(updateStreak, 1000);
+    
+    return () => clearInterval(intervalId);
+  }, []);
   
   // Navigationsdaten in einem Array für einfache Wartung
   // Wenn du Navigationspunkte hinzufügen/entfernen möchtest, ändere einfach dieses Array
@@ -82,6 +102,9 @@ const Navbar = () => {
             className += "border-r border-gray-200 dark:border-gray-700 ";
           }
           
+         
+          
+          // Standard-Link ohne Streak-Anzeige
           return (
             <li key={link.to} className="w-full focus-within:z-10">
               <Link 
