@@ -1,0 +1,31 @@
+// components/common/Button.jsx
+import React from 'react';
+
+function Button({ 
+  children, 
+  onClick, 
+  type = "button",
+  disabled = false,
+  className = '', 
+  ...props 
+}) {
+  // Basis-Styling für alle Buttons
+  const baseClasses = "text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2";
+  
+  // Kombiniere die Klassen
+  const buttonClasses = `${baseClasses} ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`;
+  
+  return (
+    <button 
+      type={type}
+      className={buttonClasses}
+      onClick={onClick}
+      disabled={disabled}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+}
+
+export default Button;
