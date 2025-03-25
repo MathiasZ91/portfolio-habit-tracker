@@ -1,3 +1,10 @@
+// DailyGoalsForm:
+
+// Zeigt ein Formular zum Einrichten der Habits
+// Lässt den Benutzer bis zu 5 Habits hinzufügen
+// Hat einen "Fertig"-Button, um das Setup abzuschließen
+
+
 import  { useState } from 'react';
 import PropTypes from 'prop-types'; // PropTypes importieren
 import Button from '../common/Button';

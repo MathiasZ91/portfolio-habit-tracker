@@ -1,7 +1,14 @@
-import React, { useState, useEffect } from "react";
+// DailyGoalsPage:
+
+// Ist dein "Container" oder deine "Seite"
+// Verwaltet den gesamten State (Habits, Abschluss-Status, erledigte Habits)
+// Entscheidet, ob das Formular oder die Liste angezeigt wird
+
+
+import { useState, useEffect } from "react";
 import DailyGoalsForm from '../components/DailyGoals/DailyGoalsForm';
 import GoalsList from '../components/DailyGoals/GoalsList'; 
-import Button from '../components/common/Button';
+
 
 
 

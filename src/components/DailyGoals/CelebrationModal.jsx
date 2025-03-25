@@ -1,4 +1,9 @@
-// components/DailyGoals/CelebrationModal.jsx
+// CelebrationModal:
+
+// Zeigt die Konfetti-Animation und Glückwünsche an
+// Erscheint nur, wenn alle Habits erledigt sind
+
+
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Confetti from 'react-confetti';
