@@ -1,4 +1,10 @@
-// components/DailyGoals/GoalsList.jsx
+// GoalsList:
+
+// Zeigt die Liste der Habits zum Abhaken an
+// Hat einen "Reset"-Button, um zum Setup zurückzukehren
+// Löst die Feier aus, wenn alle Habits erledigt sind
+
+
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Button from '../common/Button';

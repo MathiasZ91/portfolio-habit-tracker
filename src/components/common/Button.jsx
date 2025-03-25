@@ -1,5 +1,6 @@
-// components/common/Button.jsx
-import React from 'react';
+
+
+import PropTypes from 'prop-types';
 
 function Button({ 
   children, 
@@ -27,5 +28,13 @@ function Button({
     </button>
   );
 }
+
+Button.propTypes = {
+  children: PropTypes.node.isRequired,
+  onClick: PropTypes.func,
+  type: PropTypes.string,
+  disabled: PropTypes.bool,
+  className: PropTypes.string,
+};
 
 export default Button;

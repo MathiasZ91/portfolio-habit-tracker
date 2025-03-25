@@ -1,4 +1,8 @@
+//GoalItem:
 
+//Stellt einen einzelnen Habit-Button dar
+// Ändert sein Aussehen je nach Status (erledigt/nicht erledigt)
+// Reagiert auf Klicks, um den Status zu ändern
 
 function GoalItem({ habit, completed, onToggle }) {
   // Unterschiedliche Stile für erledigte und nicht erledigte Habits
