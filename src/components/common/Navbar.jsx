@@ -37,7 +37,7 @@ const Navbar = () => {
     { to: "/", label: "Daily Habits" },
     { to: "/calendar", label: "Calendar" },
     { to: "/timers", label: "Timers" },
-    { to: "/todo-list", label: "Todo List" },
+    { to: "/notes", label: "Notes" },
     { to: "/login", label: "Sign In-Up" }
   ];
 
