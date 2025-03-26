@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 
-
 function PomodoroTimer() {
     const modes = useMemo(() => ({
         shortPomodoro: { workTime: 25 * 60, breakTime: 5 * 60 },
@@ -39,6 +38,11 @@ function PomodoroTimer() {
         // Sound abspielen
         playSound();
         
+        // Vibration on mobile devices if supported
+        if ('vibrate' in navigator) {
+            navigator.vibrate(200);  // Vibrate for 200ms
+        }
+        
         // Timer zurücksetzen und Phase Wechseln
         if (isWorkPhase) {
             //Arbeitsphase abgeschlossen, zur Pause wechseln
@@ -72,7 +76,7 @@ function PomodoroTimer() {
         // Dependency array for useEffect
     }, [isRunning, timeLeft, handlePhaseComplete]);
 
-    // FUnktion zum Behalten des Modulswechsels
+    // Funktion zum Behalten des Modulswechsels
     const handleModeChange = (newMode) => {
         setMode(newMode);
         setTimeLeft(modes[newMode][isWorkPhase ? 'workTime' : 'breakTime']);
@@ -128,11 +132,11 @@ function PomodoroTimer() {
             </button>
           </div>
           
-          {/* Timer display - made larger */}
-          <div className="flex items-start justify-center w-full mb-10">
-            <div className="timer w-64">
-              <div className="bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 py-12 px-6 rounded-lg overflow-hidden">
-                <h3 className="countdown-element font-semibold text-7xl text-gray-900 text-center">
+          {/* Timer display - enhanced for larger, more modern look */}
+          <div className="flex items-center justify-center w-full mb-10">
+            <div className="timer w-80"> {/* Increased width from w-64 to w-80 */}
+              <div className="bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 py-16 px-8 rounded-xl shadow-lg overflow-hidden"> {/* Increased padding, rounded corners, added shadow */}
+                <h3 className="countdown-element font-bold text-8xl text-gray-900 text-center"> {/* Increased font size from 7xl to 8xl, added bold */}
                   {formatTime(timeLeft)}
                 </h3>
               </div>
