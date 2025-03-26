@@ -13,7 +13,7 @@ const Footer = () => {
     { to: "/", label: "Habits", icon: MdHome },
     { to: "/calendar", label: "Calendar", icon: MdCalendarMonth },
     { to: "/timers", label: "Timers", icon: MdTimer },
-    { to: "/todo-list", label: "Tasks", icon: MdChecklist },
+    { to: "/notes", label: "Notes", icon: MdChecklist },
     { to: "/login", label: "Profile", icon: MdPerson }
   ];
 

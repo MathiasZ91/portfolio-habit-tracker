@@ -13,7 +13,7 @@ import Footer from './components/common/Footer';  // Footer, erscheint auf allen
 import DailyGoalsPage from './pages/DailyGoalsPage';  // Hauptseite für tägliche Ziele
 import CalendarPage from './pages/CalendarPage';      // Kalenderseite
 import TimersPage from './pages/TimersPage';
-import TodoListPage from './pages/TodoListPage';
+import NotesPage from './pages/NotesPage';
 import LoginPage from './pages/LoginPage';
 
 
@@ -68,8 +68,8 @@ const router = createBrowserRouter([
         element: <TimersPage />    // Zeigt die CalendarPage im Outlet an
       },
       {
-        path: "todo-list", // Diese Route wird bei "/calendar" aktiviert
-        element: <TodoListPage />    // Zeigt die CalendarPage im Outlet an
+        path: "notes", // Diese Route wird bei "/calendar" aktiviert
+        element: <NotesPage />    // Zeigt die CalendarPage im Outlet an
       },
       {
         path: "login", // Diese Route wird bei "/calendar" aktiviert

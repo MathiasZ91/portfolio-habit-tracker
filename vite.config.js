@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3000,
-    host: true, // Listen on all addresses
+    // Listen on all addresses
     hmr: {
       overlay: false,
       protocol: 'ws',
