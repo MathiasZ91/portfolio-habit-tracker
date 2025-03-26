@@ -1,5 +1,6 @@
-import React from 'react';
-import Button from '../../common/Button';
+
+import Button from '../common/Button';
+import PropTypes from 'prop-types';
 
 const NotesItem = ({ note, toggleComplete, deleteNote }) => {
   const handleToggle = () => {
@@ -28,6 +29,15 @@ const NotesItem = ({ note, toggleComplete, deleteNote }) => {
       </div>
     </div>
   );
+};
+NotesItem.propTypes = {
+  note: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    text: PropTypes.string.isRequired,
+    completed: PropTypes.bool.isRequired,
+  }).isRequired,
+  toggleComplete: PropTypes.func.isRequired,
+  deleteNote: PropTypes.func.isRequired,
 };
 
 export default NotesItem;

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import Button from '../../common/Button';
+import { useState } from 'react';
+import Button from '../common/Button';
+import PropTypes from 'prop-types';
 
 const NotesForm = ({ addNote }) => {
   // Wir verwenden den useState-Hook, um den Wert des Eingabefelds zu verfolgen
@@ -51,6 +52,9 @@ const NotesForm = ({ addNote }) => {
       <Button type="submit">Add</Button>
     </form>
   );
+};
+NotesForm.propTypes = {
+  addNote: PropTypes.func.isRequired,
 };
 
 export default NotesForm;
