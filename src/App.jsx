@@ -8,6 +8,10 @@ import {
 // Gemeinsame Komponenten
 import Navbar from './components/common/Navbar';  // Navigation, erscheint auf allen Seiten oben
 import Footer from './components/common/Footer';  // Footer, erscheint auf allen Seiten unten
+import ProfileModal from './components/common/ProfileModal'; // Profilauswahl-Modal
+
+// Profile Context Provider
+import { ProfileProvider } from './context/ProfileContext';  // Profilverwaltung mit Context API
 
 // Seitenkomponenten
 import DailyGoalsPage from './pages/DailyGoalsPage';  // Hauptseite für tägliche Ziele
@@ -36,6 +40,7 @@ const Root = () => {
         <Outlet />  {/* Hier werden die untergeordneten Routen dynamisch angezeigt */}
       </main>
       <Footer />  {/* Footer wird immer unten angezeigt (+ Mobile-Navigation) */}
+      <ProfileModal /> {/* Modal für Profilverwaltung, überall verfügbar */}
     </div>
     </>
   );
@@ -86,7 +91,12 @@ const router = createBrowserRouter([
  * mit unserer React-Anwendung.
  */
 const App = () => {
-  return <RouterProvider router={router} />;  // Übergibt die Router-Konfiguration an die App
+  // Wrap the entire app in the ProfileProvider to make profile data available everywhere
+  return (
+    <ProfileProvider>
+      <RouterProvider router={router} />
+    </ProfileProvider>
+  );
 };
 
 export default App;
@@ -104,4 +114,5 @@ export default App;
  * - Der Outlet ist ein "Fenster" für die untergeordneten Routen
  * - Die children-Routen sind die verschiedenen Inhalte, die im Outlet erscheinen
  * - Nested Routing erlaubt uns, ein konsistentes Layout zu haben
+ * - Die ProfileProvider umschließt die gesamte App, sodass Profildaten überall verfügbar sind
  */

@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router';
 import { useEffect } from 'react';
+import ProfileButton from '../common/ProfileButton';
 
 /**
  * Navigationskomponente mit responsivem Design
@@ -69,56 +70,63 @@ const Navbar = () => {
 
       {/* Desktop Navigation (auf kleinen Bildschirmen ausgeblendet) */}
       {/* Die Klasse 'hidden' blendet es standardmäßig aus, aber 'sm:flex' zeigt es auf 'small' Bildschirmen und größer an */}
-      <ul className="hidden text-sm font-medium text-center text-gray-500 rounded-lg shadow-sm sm:flex dark:divide-gray-700 dark:text-gray-400">
-        {/* Generiere Tabs aus unseren Navigationsdaten */}
-        {navLinks.map((link, index) => {
-          // Prüfe, ob dieser Link mit dem aktuellen URL-Pfad übereinstimmt
-          const isActive = location.pathname === link.to;
-          // Spezielles Styling für erste und letzte Elemente (abgerundete Ecken)
-          const isFirst = index === 0;
-          const isLast = index === navLinks.length - 1;
-          
-          // Beginne mit dem Aufbau des className-Strings
-          let className = "inline-block w-full p-4 ";
-          
-          // Füge Stile basierend auf dem aktiven Zustand hinzu
-          if (isActive) {
-            // Styling für aktive Links (dunklerer Hintergrund usw.)
-            className += "text-gray-900 bg-gray-100 focus:ring-4 focus:ring-blue-300 active focus:outline-none dark:bg-gray-700 dark:text-white ";
-          } else {
-            // Styling für inaktive Links mit Hover-Effekten
-            className += "bg-white hover:text-gray-700 hover:bg-gray-50 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700 ";
-          }
-          
-          // Füge positionsspezifische Stile hinzu (Ränder und abgerundete Ecken)
-          if (isFirst) {
-            // Erstes Element bekommt abgerundete Ecken links
-            className += "border-r border-gray-200 dark:border-gray-700 rounded-s-lg ";
-          } else if (isLast) {
-            // Letztes Element bekommt abgerundete Ecken rechts
-            className += "border-s-0 border-gray-200 dark:border-gray-700 rounded-e-lg ";
-          } else {
-            // Mittlere Elemente bekommen Ränder auf der rechten Seite
-            className += "border-r border-gray-200 dark:border-gray-700 ";
-          }
-          
-         
-          
-          // Standard-Link ohne Streak-Anzeige
-          return (
-            <li key={link.to} className="w-full focus-within:z-10">
-              <Link 
-                to={link.to} 
-                className={className}
-                // aria-current verbessert die Barrierefreiheit, indem es die aktuelle Seite kennzeichnet
-                aria-current={isActive ? "page" : undefined}
-              >
-                {link.label}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+      <div className="flex justify-between items-center mx-4">
+        <ul className="hidden text-sm font-medium text-center text-gray-500 rounded-lg shadow-sm sm:flex dark:divide-gray-700 dark:text-gray-400">
+          {/* Generiere Tabs aus unseren Navigationsdaten */}
+          {navLinks.map((link, index) => {
+            // Prüfe, ob dieser Link mit dem aktuellen URL-Pfad übereinstimmt
+            const isActive = location.pathname === link.to;
+            // Spezielles Styling für erste und letzte Elemente (abgerundete Ecken)
+            const isFirst = index === 0;
+            const isLast = index === navLinks.length - 1;
+            
+            // Beginne mit dem Aufbau des className-Strings
+            let className = "inline-block w-full p-4 ";
+            
+            // Füge Stile basierend auf dem aktiven Zustand hinzu
+            if (isActive) {
+              // Styling für aktive Links (dunklerer Hintergrund usw.)
+              className += "text-gray-900 bg-gray-100 focus:ring-4 focus:ring-blue-300 active focus:outline-none dark:bg-gray-700 dark:text-white ";
+            } else {
+              // Styling für inaktive Links mit Hover-Effekten
+              className += "bg-white hover:text-gray-700 hover:bg-gray-50 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700 ";
+            }
+            
+            // Füge positionsspezifische Stile hinzu (Ränder und abgerundete Ecken)
+            if (isFirst) {
+              // Erstes Element bekommt abgerundete Ecken links
+              className += "border-r border-gray-200 dark:border-gray-700 rounded-s-lg ";
+            } else if (isLast) {
+              // Letztes Element bekommt abgerundete Ecken rechts
+              className += "border-s-0 border-gray-200 dark:border-gray-700 rounded-e-lg ";
+            } else {
+              // Mittlere Elemente bekommen Ränder auf der rechten Seite
+              className += "border-r border-gray-200 dark:border-gray-700 ";
+            }
+            
+           
+            
+            // Standard-Link ohne Streak-Anzeige
+            return (
+              <li key={link.to} className="w-full focus-within:z-10">
+                <Link 
+                  to={link.to} 
+                  className={className}
+                  // aria-current verbessert die Barrierefreiheit, indem es die aktuelle Seite kennzeichnet
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+
+        {/* Profile Button added to the navbar */}
+        <div className="hidden sm:block">
+          <ProfileButton />
+        </div>
+      </div>
     </nav>
   );
 };
