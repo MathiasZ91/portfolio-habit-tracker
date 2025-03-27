@@ -16,6 +16,9 @@ export default defineConfig({
         description: 'Track your daily habits and goals',
         theme_color: '#ffffff',
         background_color: '#ffffff',
+        start_url: '/',
+        display: 'standalone',
+        orientation: 'portrait',
         icons: [
           {
             src: 'logo192.png',
@@ -27,6 +30,22 @@ export default defineConfig({
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable'
+          }
+        ]
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+              }
+            }
           }
         ]
       }
