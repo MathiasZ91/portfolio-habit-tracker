@@ -1,17 +1,32 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useTimer } from '../../context/TimerContext';
 
 function EyeCareTimer() {
+    const { updateTimer, getTimerState } = useTimer();
+    const timerType = 'eyecare';
+    
     // Constants for the 20-20-20 rule
     const WORK_TIME = 20 * 60; // 20 minutes in seconds
     const BREAK_TIME = 20; // 20 seconds
 
+    // Get initial state from context
+    const contextState = getTimerState(timerType);
+    
     // States
-    const [timeLeft, setTimeLeft] = useState(WORK_TIME);
-    const [isRunning, setIsRunning] = useState(false);
-    const [isWorkPhase, setIsWorkPhase] = useState(true);
+    const [timeLeft, setTimeLeft] = useState(contextState.timeLeft || WORK_TIME);
+    const [isRunning, setIsRunning] = useState(contextState.isRunning);
+    const [isWorkPhase, setIsWorkPhase] = useState(contextState.isWorkPhase);
 
     // Reference for storing interval ID for cleanup
     const timerRef = useRef(null);
+
+    // Update state based on context when component mounts or regains focus
+    useEffect(() => {
+        const state = getTimerState(timerType);
+        setTimeLeft(state.timeLeft || (state.isWorkPhase ? WORK_TIME : BREAK_TIME));
+        setIsRunning(state.isRunning);
+        setIsWorkPhase(state.isWorkPhase);
+    }, [getTimerState, timerType, WORK_TIME]);
 
     // Function to play a sound when phase completes
     const playSound = () => {
@@ -36,9 +51,9 @@ function EyeCareTimer() {
         // Play sound
         playSound();
         
-        // Vibrate if supported (mobile devices)
+        // Vibrate if supported
         if ('vibrate' in navigator) {
-            navigator.vibrate(200);  // Vibrate for 200ms
+            navigator.vibrate(200);
         }
         
         // Reset timer and switch phase
@@ -46,6 +61,7 @@ function EyeCareTimer() {
             // Work phase completed, switch to break
             setTimeLeft(BREAK_TIME);
             setIsWorkPhase(false);
+            
             // Display notification
             if (Notification.permission === "granted") {
                 new Notification("Eye Break Time!", {
@@ -57,6 +73,7 @@ function EyeCareTimer() {
             // Break phase completed, switch to work
             setTimeLeft(WORK_TIME);
             setIsWorkPhase(true);
+            
             // Display notification
             if (Notification.permission === "granted") {
                 new Notification("Back to Work", {
@@ -65,7 +82,14 @@ function EyeCareTimer() {
                 });
             }
         }
-    }, [isWorkPhase, WORK_TIME]);
+        
+        // Update context
+        updateTimer(timerType, {
+            isRunning: true,
+            timeLeft: isWorkPhase ? BREAK_TIME : WORK_TIME,
+            isWorkPhase: !isWorkPhase
+        });
+    }, [isWorkPhase, updateTimer, timerType, WORK_TIME]);
 
     // Effects for countdown functionality
     useEffect(() => {
@@ -86,6 +110,15 @@ function EyeCareTimer() {
             }
         };
     }, [isRunning, timeLeft, handlePhaseComplete]);
+    
+    // Update context whenever timer state changes
+    useEffect(() => {
+        updateTimer(timerType, {
+            isRunning,
+            timeLeft,
+            isWorkPhase
+        });
+    }, [isRunning, timeLeft, isWorkPhase, updateTimer, timerType]);
 
     // Function to toggle timer
     const toggleTimer = () => {
@@ -101,6 +134,13 @@ function EyeCareTimer() {
         setIsRunning(false);
         setIsWorkPhase(true);
         setTimeLeft(WORK_TIME);
+        
+        // Update context
+        updateTimer(timerType, {
+            isRunning: false,
+            timeLeft: WORK_TIME,
+            isWorkPhase: true
+        });
     };
 
     // Format time as MM:SS
@@ -116,11 +156,11 @@ function EyeCareTimer() {
                 20/20/20 Timer
             </h2>
             
-            {/* Timer display - enhanced for larger, more modern look */}
+            {/* Timer display */}
             <div className="flex items-center justify-center w-full mb-10">
-              <div className="timer w-80"> {/* Increased width from w-64 to w-80 */}
-                <div className="bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 py-16 px-8 rounded-xl shadow-lg overflow-hidden"> {/* Increased padding, rounded corners, added shadow */}
-                  <h3 className="countdown-element font-bold text-8xl text-gray-900 text-center"> {/* Increased font size from 7xl to 8xl, added bold */}
+              <div className="timer w-80">
+                <div className="bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 py-16 px-8 rounded-xl shadow-lg overflow-hidden">
+                  <h3 className="countdown-element font-bold text-8xl text-gray-900 text-center">
                     {formatTime(timeLeft)}
                   </h3>
                 </div>
