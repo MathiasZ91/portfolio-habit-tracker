@@ -9,9 +9,11 @@ import {
 import Navbar from './components/common/Navbar';  // Navigation, erscheint auf allen Seiten oben
 import Footer from './components/common/Footer';  // Footer, erscheint auf allen Seiten unten
 import ProfileModal from './components/common/ProfileModal'; // Profilauswahl-Modal
+import InstallPWA from './components/common/InstallPWA'; // Komponente zum Installieren der PWA
 
-// Profile Context Provider
+// Context Providers
 import { ProfileProvider } from './context/ProfileContext';  // Profilverwaltung mit Context API
+import { TimerProvider } from './context/TimerContext';  // Timer-Verwaltung für Hintergrundausführung
 
 // Seitenkomponenten
 import DailyGoalsPage from './pages/DailyGoalsPage';  // Hauptseite für tägliche Ziele
@@ -35,13 +37,14 @@ const Root = () => {
   return (
     <>
       <div className="flex flex-col min-h-screen">
-      <Navbar />  {/* Navigation wird immer oben angezeigt (auf Desktop) */}
-      <main className="flex-grow pt-16 md:pt-20 pb-16 md:pb-0">
-        <Outlet />  {/* Hier werden die untergeordneten Routen dynamisch angezeigt */}
-      </main>
-      <Footer />  {/* Footer wird immer unten angezeigt (+ Mobile-Navigation) */}
-      <ProfileModal /> {/* Modal für Profilverwaltung, überall verfügbar */}
-    </div>
+        <Navbar />  {/* Navigation wird immer oben angezeigt (auf Desktop) */}
+        <main className="flex-grow pt-16 md:pt-20 pb-16 md:pb-0">
+          <Outlet />  {/* Hier werden die untergeordneten Routen dynamisch angezeigt */}
+        </main>
+        <Footer />  {/* Footer wird immer unten angezeigt (+ Mobile-Navigation) */}
+        <ProfileModal /> {/* Modal für Profilverwaltung, überall verfügbar */}
+      </div>
+      <InstallPWA /> {/* Komponente zum Anzeigen der App-Installations-Aufforderung */}
     </>
   );
 };
@@ -91,10 +94,12 @@ const router = createBrowserRouter([
  * mit unserer React-Anwendung.
  */
 const App = () => {
-  // Wrap the entire app in the ProfileProvider to make profile data available everywhere
+  // Wrap the entire app in the ProfileProvider and TimerProvider to make data available everywhere
   return (
     <ProfileProvider>
-      <RouterProvider router={router} />
+      <TimerProvider>
+        <RouterProvider router={router} />
+      </TimerProvider>
     </ProfileProvider>
   );
 };
@@ -115,4 +120,5 @@ export default App;
  * - Die children-Routen sind die verschiedenen Inhalte, die im Outlet erscheinen
  * - Nested Routing erlaubt uns, ein konsistentes Layout zu haben
  * - Die ProfileProvider umschließt die gesamte App, sodass Profildaten überall verfügbar sind
+ * - Die TimerProvider ermöglicht die Ausführung von Timern im Hintergrund, wenn zwischen Seiten navigiert wird
  */
