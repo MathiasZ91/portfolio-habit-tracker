@@ -1,11 +1,12 @@
 // src/context/TimerContext.jsx
-import  { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 /* KEY CONCEPT: BACKGROUND TIMER MANAGEMENT */
 // This context allows timers to continue running when navigating away
 const TimerContext = createContext(null);
 
+// Add this custom hook to use the timer context
 
 export const TimerProvider = ({ children }) => {
   // Active timer states with their configurations
@@ -159,6 +160,7 @@ export const TimerProvider = ({ children }) => {
     </TimerContext.Provider>
   );
 };
+
 TimerProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
