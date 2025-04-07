@@ -1,53 +1,53 @@
-// src/pages/TimersPage.jsx
 import { useState, useEffect } from 'react';
 import PomodoroTimer from '../components/Timers/PomodoroTimer';
 import EyeCareTimer from '../components/Timers/EyeCareTimer';
-import { useTimer } from '../context/TimerContext';
+import { useTimer } from '../hooks/UseTimer';
 
-function TimersPage() {
-  // Initialize with 'pomodoro' as the default selected timer
-  const [activeTimer, setActiveTimer] = useState('pomodoro');
-  
-  // Get timer context functions
+const TimersPage = () => {
   const { setIsTimerPageActive } = useTimer();
+  const [activeTab, setActiveTab] = useState('pomodoro');
   
-  // Tell the context when timer page is active/inactive
+  // Set timer page active status on mount/unmount
   useEffect(() => {
     setIsTimerPageActive(true);
-    return () => setIsTimerPageActive(false);
+    
+    return () => {
+      setIsTimerPageActive(false);
+    };
   }, [setIsTimerPageActive]);
-
+  
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Productivity Timers</h1>
+    <div className="container mx-auto px-4 py-8 text-gray-800">
+      <h1 className="text-3xl font-bold mb-8 text-center">Productivity Timers</h1>
       
-      {/* Timer selection buttons */}
-      <div className="flex gap-4 mb-8 w-full">
-        <button 
-          onClick={() => setActiveTimer('pomodoro')}
-          className={`w-1/2 py-3 px-4 rounded-lg text-lg font-medium transition-colors ${
-            activeTimer === 'pomodoro'
-              ? 'bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 text-gray-900'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-          }`}
-        >
-          Pomodoro Timer
-        </button>
-        <button 
-          onClick={() => setActiveTimer('eyecare')}
-          className={`w-1/2 py-3 px-4 rounded-lg text-lg font-medium transition-colors ${
-            activeTimer === 'eyecare'
-              ? 'bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 text-gray-900'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-          }`}
-        >
-          20/20/20 Timer
-        </button>
+      <div className="max-w-2xl mx-auto mb-10">
+        <div className="flex border-b">
+          <button
+            className={`px-6 py-2 text-lg font-medium w-1/2 text-center transition-colors ${
+              activeTab === 'pomodoro'
+                ? 'border-b-2 border-red-400 text-red-500'
+                : ''
+            }`}
+            onClick={() => setActiveTab('pomodoro')}
+          >
+            Pomodoro
+          </button>
+          
+          <button
+            className={`px-6 py-2 text-lg font-medium w-1/2 text-center transition-colors ${
+              activeTab === 'eyecare'
+                ? 'border-b-2 border-red-400 text-red-500'
+                : ''
+            }`}
+            onClick={() => setActiveTab('eyecare')}
+          >
+            Eye Care
+          </button>
+        </div>
       </div>
       
-      {/* Display the selected timer component */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        {activeTimer === 'pomodoro' ? (
+      <div className="max-w-2xl mx-auto py-8">
+        {activeTab === 'pomodoro' ? (
           <PomodoroTimer />
         ) : (
           <EyeCareTimer />
@@ -55,6 +55,6 @@ function TimersPage() {
       </div>
     </div>
   );
-}
+};
 
 export default TimersPage;
