@@ -1,13 +1,13 @@
-// Main container component for Notes functionality
-import React, { useState, useEffect } from 'react';
+// Main container for Notes functionality
+import { useState, useEffect } from 'react';
 import NotesForm from '../components/Notes/NotesForm';
 import NotesList from '../components/Notes/NotesList';
 
 const NotesPage = () => {
-  // State to hold all notes
+  // Store notes collection
   const [notes, setNotes] = useState([]);
   
-  // Load notes from localStorage when component mounts
+  // Load saved notes from localStorage
   useEffect(() => {
     const savedNotes = localStorage.getItem('notes');
     if (savedNotes) {
@@ -15,12 +15,12 @@ const NotesPage = () => {
     }
   }, []);
 
-  // Save notes to localStorage whenever they change
+  // Save notes when they change
   useEffect(() => {
     localStorage.setItem('notes', JSON.stringify(notes));
   }, [notes]);
 
-  // Function to add a new note
+  // Create new note
   const addNote = (text) => {
     if (text.trim() !== '') {
       const newNote = {
@@ -32,7 +32,7 @@ const NotesPage = () => {
     }
   };
 
-  // Function to toggle completion status
+  // Update note completion status
   const toggleComplete = (id) => {
     setNotes(
       notes.map(note => 
@@ -43,7 +43,7 @@ const NotesPage = () => {
     );
   };
 
-  // Function to delete a note
+  // Remove note
   const deleteNote = (id) => {
     setNotes(notes.filter(note => note.id !== id));
   };

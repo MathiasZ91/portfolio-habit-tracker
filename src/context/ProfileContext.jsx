@@ -1,23 +1,15 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect, useContext } from 'react';
+import PropTypes from 'prop-types';
 
-/* KEY CONCEPT: CONTEXT API FOR GLOBAL PROFILE MANAGEMENT */
-const ProfileContext = createContext(null);
+// Context API for global profile management
+export const ProfileContext = createContext(null);
 
-// Custom hook for easy access to profile data
-export const useProfile = () => {
-  const context = useContext(ProfileContext);
-  if (!context) {
-    throw new Error('useProfile must be used within a ProfileProvider');
-  }
-  return context;
-};
-
-// Helper function to create a new profile structure
+// Create new profile structure
 const createEmptyProfile = (name) => ({
   id: Date.now().toString(),
   name,
   createdAt: new Date().toISOString(),
-  imageUrl: null, // Will store the Data URL of the profile image
+  imageUrl: null, // Data URL for profile image
   streaks: {
     current: 0,
     best: 0,
@@ -25,70 +17,72 @@ const createEmptyProfile = (name) => ({
   }
 });
 
-// Provider component that makes profile data available throughout the app
 export const ProfileProvider = ({ children }) => {
-  // State to store the currently active profile
+  ProfileProvider.propTypes = {
+    children: PropTypes.node.isRequired,
+  };
+  // Store current profile
   const [activeProfile, setActiveProfile] = useState(null);
-  
-  // State to store all available profiles
+
+  // Store all profiles
   const [profiles, setProfiles] = useState([]);
-  
-  // State to control profile modal visibility
+
+  // Control profile modal visibility
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
-  // Load profiles from localStorage on component mount
+  // Load profiles from localStorage on mount
   useEffect(() => {
     const storedProfiles = localStorage.getItem('habitTracker_profiles');
     if (storedProfiles) {
       const parsedProfiles = JSON.parse(storedProfiles);
       setProfiles(parsedProfiles);
-      
-      // Load active profile if one exists
+
+      // Set active profile
       const activeProfileId = localStorage.getItem('habitTracker_activeProfile');
       if (activeProfileId) {
         const foundProfile = parsedProfiles.find(p => p.id === activeProfileId);
         if (foundProfile) {
           setActiveProfile(foundProfile);
         } else if (parsedProfiles.length > 0) {
-          // Fallback to first profile if active not found
+          // Fallback to first profile
           setActiveProfile(parsedProfiles[0]);
           localStorage.setItem('habitTracker_activeProfile', parsedProfiles[0].id);
         }
       } else if (parsedProfiles.length > 0) {
-        // Set first profile as active if none selected
+        // Default to first profile
         setActiveProfile(parsedProfiles[0]);
         localStorage.setItem('habitTracker_activeProfile', parsedProfiles[0].id);
       }
     }
   }, []);
 
-  // Save profiles whenever they change
+  // Save profiles on change
   useEffect(() => {
     if (profiles.length > 0) {
       localStorage.setItem('habitTracker_profiles', JSON.stringify(profiles));
     }
   }, [profiles]);
 
-  // Create a new profile
+  // Create new profile
   const createProfile = (name, imageDataUrl = null) => {
     const newProfile = createEmptyProfile(name);
     if (imageDataUrl) {
       newProfile.imageUrl = imageDataUrl;
     }
-    
+
     const updatedProfiles = [...profiles, newProfile];
     setProfiles(updatedProfiles);
-    
-    // If this is the first profile, set it as active
+
+    // Set as active if first profile
     if (updatedProfiles.length === 1) {
       setActiveProfile(newProfile);
       localStorage.setItem('habitTracker_activeProfile', newProfile.id);
     }
-    
+
     return newProfile;
   };
 
-  // Switch to a different profile
+  // Switch active profile
   const switchProfile = (profileId) => {
     const profile = profiles.find(p => p.id === profileId);
     if (profile) {
@@ -97,27 +91,27 @@ export const ProfileProvider = ({ children }) => {
     }
   };
 
-  // Update a profile
+  // Update profile data
   const updateProfile = (profileId, updates) => {
-    const updatedProfiles = profiles.map(profile => 
+    const updatedProfiles = profiles.map(profile =>
       profile.id === profileId ? { ...profile, ...updates } : profile
     );
-    
+
     setProfiles(updatedProfiles);
-    
-    // Update active profile if it was the one modified
+
+    // Update active profile if modified
     if (activeProfile && activeProfile.id === profileId) {
       const updatedActiveProfile = { ...activeProfile, ...updates };
       setActiveProfile(updatedActiveProfile);
     }
   };
 
-  // Delete a profile
+  // Remove profile
   const deleteProfile = (profileId) => {
     const updatedProfiles = profiles.filter(profile => profile.id !== profileId);
     setProfiles(updatedProfiles);
-    
-    // If we deleted the active profile, switch to another one
+
+    // Handle active profile deletion
     if (activeProfile && activeProfile.id === profileId) {
       if (updatedProfiles.length > 0) {
         setActiveProfile(updatedProfiles[0]);
@@ -129,19 +123,19 @@ export const ProfileProvider = ({ children }) => {
     }
   };
 
-  // Update streaks for the active profile
+  // Update streak counter
   const updateStreak = (increment = true) => {
     if (!activeProfile) return;
-    
+
     const today = new Date().toISOString().split('T')[0];
     const lastUpdated = activeProfile.streaks.lastUpdated;
-    
-    // Only update once per day
+
+    // Once per day limit
     if (lastUpdated === today) return;
-    
+
     let current = activeProfile.streaks.current;
     let best = activeProfile.streaks.best;
-    
+
     if (increment) {
       current += 1;
       if (current > best) {
@@ -150,13 +144,13 @@ export const ProfileProvider = ({ children }) => {
     } else {
       current = 0;
     }
-    
+
     const updatedStreaks = {
       current,
       best,
       lastUpdated: today
     };
-    
+
     updateProfile(activeProfile.id, { streaks: updatedStreaks });
   };
 
@@ -165,7 +159,7 @@ export const ProfileProvider = ({ children }) => {
     setIsProfileModalOpen(!isProfileModalOpen);
   };
 
-  // Value object with all the data and functions we want to provide
+  // Context value with data and functions
   const value = {
     activeProfile,
     profiles,
@@ -183,4 +177,9 @@ export const ProfileProvider = ({ children }) => {
       {children}
     </ProfileContext.Provider>
   );
+};
+
+// Custom hook for accessing profile data
+export const useProfile = () => {
+  return useContext(ProfileContext);
 };

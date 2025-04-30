@@ -6,6 +6,7 @@ function PomodoroTimer() {
     const { updateTimer, getTimerState } = useTimer();
     const timerType = 'pomodoro';
     
+    // Define timer modes
     const modes = useMemo(() => ({
         shortPomodoro: { workTime: 25 * 60, breakTime: 5 * 60 },
         longPomodoro: { workTime: 50 * 60, breakTime: 15 * 60 },
@@ -14,29 +15,27 @@ function PomodoroTimer() {
     // Get initial state from context
     const contextState = getTimerState(timerType);
     
-    // States
+    // Core state management
     const [mode, setMode] = useState(contextState.mode || 'shortPomodoro');
     const [timeLeft, setTimeLeft] = useState(contextState.timeLeft || modes.shortPomodoro.workTime);
     const [isRunning, setIsRunning] = useState(contextState.isRunning || false);
     const [currentPhase, setCurrentPhase] = useState(contextState.isWorkPhase ? 'work' : 'break');
 
-    // Refs for timestamp-based timing
+    // Refs for accurate timing
     const timerRef = useRef(null);
     const endTimeRef = useRef(null);
 
-    // Restore timer state from localStorage on component mount
+    // Load timer state from localStorage on mount
     useEffect(() => {
         const savedState = localStorage.getItem(`${timerType}_timer_state`);
         
         if (savedState) {
             try {
                 const parsedState = JSON.parse(savedState);
-                
-                // Check if the saved state is still valid (not too old)
                 const now = Date.now();
                 
                 if (parsedState.endTime && parsedState.endTime > now) {
-                    // Valid timer state that hasn't completed yet
+                    // Resume valid timer state
                     endTimeRef.current = parsedState.endTime;
                     setTimeLeft(Math.ceil((parsedState.endTime - now) / 1000));
                     setIsRunning(parsedState.isRunning);
@@ -46,7 +45,6 @@ function PomodoroTimer() {
                         setMode(parsedState.mode);
                     }
                     
-                    // Update the context
                     updateTimer(timerType, {
                         isRunning: parsedState.isRunning,
                         timeLeft: Math.ceil((parsedState.endTime - now) / 1000),
@@ -54,7 +52,7 @@ function PomodoroTimer() {
                         mode: parsedState.mode || mode
                     });
                 } else if (parsedState.isRunning) {
-                    // Timer completed while away, handle phase transition
+                    // Handle phase transition if timer completed while away
                     const newPhase = parsedState.isWorkPhase ? 'break' : 'work';
                     const newTime = newPhase === 'work' 
                         ? modes[parsedState.mode || mode].workTime 
@@ -68,11 +66,9 @@ function PomodoroTimer() {
                         setMode(parsedState.mode);
                     }
                     
-                    // Set new end time
                     const newEndTime = Date.now() + (newTime * 1000);
                     endTimeRef.current = newEndTime;
                     
-                    // Update the context
                     updateTimer(timerType, {
                         isRunning: true,
                         timeLeft: newTime,
@@ -80,7 +76,7 @@ function PomodoroTimer() {
                         mode: parsedState.mode || mode
                     });
                     
-                    // Show notification if phase changed
+                    // Show notification if permissions granted
                     if (Notification.permission === "granted") {
                         new Notification(newPhase === 'work' ? "Focus Time!" : "Break Time!", {
                             body: newPhase === 'work' 
@@ -96,7 +92,7 @@ function PomodoroTimer() {
         }
     }, [timerType, modes, mode, updateTimer]);
 
-    // Save timer state to localStorage when it changes
+    // Save timer state to localStorage
     useEffect(() => {
         if (isRunning && endTimeRef.current) {
             localStorage.setItem(`${timerType}_timer_state`, JSON.stringify({
@@ -112,7 +108,7 @@ function PomodoroTimer() {
         }
     }, [isRunning, timeLeft, timerType, currentPhase, mode]);
 
-    // Debounced update timer function
+    // Reduce context updates with debounce
     const debouncedUpdateTimer = useCallback((type, state) => {
         const debouncedFn = _.debounce(() => {
             updateTimer(type, state);
@@ -120,7 +116,7 @@ function PomodoroTimer() {
         debouncedFn();
     }, [updateTimer]);
 
-    // Toggle timer with debounce and careful state management
+    // Start/pause timer
     const toggleTimer = useCallback(() => {
         console.group('Toggle Timer Debug');
         console.log('Current State:', {
@@ -130,7 +126,7 @@ function PomodoroTimer() {
             timerType
         });
 
-        // Prevent multiple rapid toggles
+        // Request notification permission if needed
         if (!isRunning && Notification.permission !== "granted" && Notification.permission !== "denied") {
             Notification.requestPermission();
         }
@@ -140,7 +136,6 @@ function PomodoroTimer() {
             
             console.log('New Running State:', newState);
             
-            // Update context with the new state
             debouncedUpdateTimer(timerType, {
                 isRunning: newState,
                 timeLeft: timeLeft,
@@ -154,7 +149,7 @@ function PomodoroTimer() {
         console.groupEnd();
     }, [isRunning, debouncedUpdateTimer, timerType, timeLeft, currentPhase, mode]);
 
-    // Timer tick logic
+    // Handle timer completion and phase switching
     const timerTick = useCallback(() => {
         if (!endTimeRef.current) return;
         
@@ -162,7 +157,7 @@ function PomodoroTimer() {
         const diff = Math.max(0, Math.round((endTimeRef.current - now) / 1000));
         
         if (diff <= 0) {
-            // Play completion sound
+            // Play alert sound
             try {
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const oscillator = audioContext.createOscillator();
@@ -181,20 +176,19 @@ function PomodoroTimer() {
                 console.error("Error playing sound:", error);
             }
             
-            // Vibrate if supported
+            // Vibrate device if supported
             if ('vibrate' in navigator) {
                 navigator.vibrate(200);
             }
             
-            // Switch phases
+            // Switch between work and break phases
             if (currentPhase === 'work') {
+                // Switch to break phase
                 setCurrentPhase('break');
                 setTimeLeft(modes[mode].breakTime);
                 
-                // Set new end time
                 endTimeRef.current = Date.now() + (modes[mode].breakTime * 1000);
                 
-                // Update context
                 updateTimer(timerType, {
                     isRunning: true,
                     timeLeft: modes[mode].breakTime,
@@ -202,7 +196,6 @@ function PomodoroTimer() {
                     mode
                 });
                 
-                // Notification
                 if (Notification.permission === "granted") {
                     new Notification("Break Time!", {
                         body: "Time to take a short break",
@@ -210,13 +203,12 @@ function PomodoroTimer() {
                     });
                 }
             } else {
+                // Switch to work phase
                 setCurrentPhase('work');
                 setTimeLeft(modes[mode].workTime);
                 
-                // Set new end time
                 endTimeRef.current = Date.now() + (modes[mode].workTime * 1000);
                 
-                // Update context
                 updateTimer(timerType, {
                     isRunning: true,
                     timeLeft: modes[mode].workTime,
@@ -224,7 +216,6 @@ function PomodoroTimer() {
                     mode
                 });
                 
-                // Notification
                 if (Notification.permission === "granted") {
                     new Notification("Focus Time!", {
                         body: "Time to get back to work",
@@ -233,10 +224,9 @@ function PomodoroTimer() {
                 }
             }
         } else {
-            // Update displayed time
+            // Update timer display
             setTimeLeft(diff);
             
-            // Periodic context update
             updateTimer(timerType, {
                 timeLeft: diff,
                 isRunning,
@@ -246,44 +236,41 @@ function PomodoroTimer() {
         }
     }, [currentPhase, isRunning, mode, modes, updateTimer, timerType]);
 
-    // Timer start/stop effect - IMPROVED VERSION
+    // Core timer functionality
     useEffect(() => {
         if (isRunning) {
-            // Only set the end time if it's not already set
+            // Set end time if not already set
             if (!endTimeRef.current) {
                 const endTime = Date.now() + (timeLeft * 1000);
                 endTimeRef.current = endTime;
             }
             
             if (!timerRef.current) {
-                // Create the interval that will update the timer
+                // Create timer update interval
                 timerRef.current = setInterval(() => {
                     const now = Date.now();
                     const diff = Math.max(0, Math.round((endTimeRef.current - now) / 1000));
                     
                     if (diff <= 0) {
-                        // Timer completed
                         timerTick();
                     } else {
-                        // Update displayed time
                         setTimeLeft(diff);
                     }
                 }, 500);
             }
         } else {
-            // Clear interval when timer is stopped
+            // Clear timer when stopped
             if (timerRef.current) {
                 clearInterval(timerRef.current);
                 timerRef.current = null;
             }
             
-            // Clear end time when stopped
             if (!isRunning) {
                 endTimeRef.current = null;
             }
         }
         
-        // Cleanup on component unmount
+        // Cleanup on unmount
         return () => {
             if (timerRef.current) {
                 clearInterval(timerRef.current);
@@ -292,27 +279,24 @@ function PomodoroTimer() {
         };
     }, [isRunning, timerTick, timeLeft]);
 
-    // Handle visibility change (tab/app switching) - IMPROVED VERSION
+    // Handle app/tab visibility changes
     useEffect(() => {
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
                 if (isRunning && endTimeRef.current) {
-                    // Calculate the current time left based on the end time
+                    // Recalculate time when tab becomes visible
                     const now = Date.now();
                     const diff = Math.max(0, Math.round((endTimeRef.current - now) / 1000));
                     
                     if (diff <= 0) {
-                        // Timer has elapsed while away - trigger phase change
                         timerTick();
                     } else {
-                        // Timer is still running - update the displayed time to reflect elapsed time
                         setTimeLeft(diff);
                     }
                 }
             }
         };
         
-        // Add the event listener
         document.addEventListener('visibilitychange', handleVisibilityChange);
         
         return () => {
@@ -320,22 +304,20 @@ function PomodoroTimer() {
         };
     }, [isRunning, timerTick]);
 
-    // Mode change handler
+    // Switch between short and long pomodoro modes
     const handleModeChange = useCallback((newMode) => {
-        // Stop current timer
+        // Reset timer for new mode
         if (timerRef.current) {
             clearInterval(timerRef.current);
             timerRef.current = null;
         }
         
-        // Reset to initial state of new mode
         setIsRunning(false);
         setCurrentPhase('work');
         setMode(newMode);
         setTimeLeft(modes[newMode].workTime);
         endTimeRef.current = null;
         
-        // Update context
         updateTimer(timerType, {
             isRunning: false,
             timeLeft: modes[newMode].workTime,
@@ -343,11 +325,10 @@ function PomodoroTimer() {
             mode: newMode
         });
         
-        // Clear localStorage
         localStorage.removeItem(`${timerType}_timer_state`);
     }, [modes, updateTimer, timerType]);
 
-    // Reset timer
+    // Reset timer to initial state
     const resetTimer = useCallback(() => {
         if (timerRef.current) {
             clearInterval(timerRef.current);
@@ -359,7 +340,6 @@ function PomodoroTimer() {
         setTimeLeft(modes[mode].workTime);
         endTimeRef.current = null;
         
-        // Update context
         updateTimer(timerType, {
             isRunning: false,
             timeLeft: modes[mode].workTime,
@@ -367,18 +347,17 @@ function PomodoroTimer() {
             mode
         });
         
-        // Clear localStorage
         localStorage.removeItem(`${timerType}_timer_state`);
     }, [mode, modes, updateTimer, timerType]);
 
-    // Format time as MM:SS
+    // Format seconds to MM:SS display
     const formatTime = useCallback((seconds) => {
         const minutes = Math.floor(seconds / 60);
         const secs = seconds % 60;
         return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }, []);
 
-    // Display the current phase in the UI
+    // Current phase label
     const phaseDisplay = currentPhase === 'work' ? "Work Phase" : "Break Phase";
 
     return (

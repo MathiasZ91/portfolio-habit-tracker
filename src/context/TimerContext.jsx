@@ -1,9 +1,9 @@
 // @refresh reset
-import { createContext, useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useContext, createContext } from 'react';
 import PropTypes from 'prop-types';
 
-// Export the context
-export const TimerContext = createContext(null);
+// Timer context for app-wide timer state
+export const TimerContext = createContext(null); // Assuming TimerContextDefinition isn't needed anymore
 
 export const TimerProvider = ({ children }) => {
   const [activeTimers, setActiveTimers] = useState({
@@ -24,15 +24,16 @@ export const TimerProvider = ({ children }) => {
 
   const [isTimerPageActive, setIsTimerPageActive] = useState(false);
 
+  // Update timer with new state
   const updateTimer = useCallback((type, timerState) => {
     setActiveTimers(prev => {
       const currentTimer = prev[type] || {};
-      
+
       const newTimerState = {
         ...currentTimer,
         ...timerState,
-        endTime: timerState.isRunning && timerState.timeLeft > 0 
-          ? Date.now() + (timerState.timeLeft * 1000) 
+        endTime: timerState.isRunning && timerState.timeLeft > 0
+          ? Date.now() + (timerState.timeLeft * 1000)
           : null
       };
 
@@ -43,23 +44,24 @@ export const TimerProvider = ({ children }) => {
     });
   }, []);
 
+  // Get current timer state with real-time remaining time
   const getTimerState = useCallback((type) => {
     const timer = activeTimers[type];
-    
+
     if (timer.isRunning && timer.endTime) {
       const millisLeft = Math.max(0, timer.endTime - Date.now());
       const secondsLeft = Math.ceil(millisLeft / 1000);
-      
+
       return {
         ...timer,
         timeLeft: secondsLeft
       };
     }
-    
+
     return timer;
   }, [activeTimers]);
 
-  // Background sync effect
+  // Background timer management when timer page not active
   useEffect(() => {
     if (isTimerPageActive) return;
 
@@ -70,34 +72,34 @@ export const TimerProvider = ({ children }) => {
       setActiveTimers(prev => {
         const now = Date.now();
         const updated = { ...prev };
-        
+
         Object.keys(updated).forEach(type => {
           const timer = updated[type];
           if (timer.isRunning && timer.endTime) {
             if (now >= timer.endTime) {
-              // Timer completed - handle phase change
+              // Handle timer completion
               if (Notification.permission === "granted") {
                 new Notification(`${type.charAt(0).toUpperCase() + type.slice(1)} Timer Complete`, {
                   body: timer.isWorkPhase ? "Break time!" : "Back to work!",
                   icon: "/favicon.ico"
                 });
               }
-              
+
               if ('vibrate' in navigator) {
                 navigator.vibrate(200);
               }
-              
-              // Phase switching logic
+
+              // Switch between work and break phases
               const modes = {
                 shortPomodoro: { workTime: 1500, breakTime: 300 },
                 longPomodoro: { workTime: 3000, breakTime: 900 }
               };
-              
+
               const newPhase = !timer.isWorkPhase;
-              const newTime = type === 'pomodoro' 
+              const newTime = type === 'pomodoro'
                 ? (newPhase ? modes[timer.mode].workTime : modes[timer.mode].breakTime)
                 : (newPhase ? 1200 : 20); // 20 min or 20 sec for eyecare
-                
+
               updated[type] = {
                 ...timer,
                 isWorkPhase: newPhase,
@@ -105,9 +107,10 @@ export const TimerProvider = ({ children }) => {
                 endTime: now + (newTime * 1000)
               };
             } else {
+              // Update remaining time
               const millisLeft = Math.max(0, timer.endTime - now);
               const secondsLeft = Math.ceil(millisLeft / 1000);
-              
+
               updated[type] = {
                 ...timer,
                 timeLeft: secondsLeft
@@ -115,7 +118,7 @@ export const TimerProvider = ({ children }) => {
             }
           }
         });
-        
+
         return updated;
       });
     }, 1000);
@@ -123,7 +126,7 @@ export const TimerProvider = ({ children }) => {
     return () => clearInterval(intervalId);
   }, [isTimerPageActive, activeTimers]);
 
-  // Notification permission
+  // Request notification permission
   useEffect(() => {
     if (Notification.permission !== "granted" && Notification.permission !== "denied") {
       Notification.requestPermission();
@@ -146,6 +149,11 @@ export const TimerProvider = ({ children }) => {
 
 TimerProvider.propTypes = {
   children: PropTypes.node.isRequired,
+};
+
+// Custom hook for accessing timer context values
+export const useTimer = () => {
+  return useContext(TimerContext);
 };
 
 export default TimerProvider;
