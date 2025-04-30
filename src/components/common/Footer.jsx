@@ -2,13 +2,12 @@ import { Link, useLocation } from 'react-router';
 import { MdHome, MdCalendarMonth, MdTimer, MdChecklist, MdPerson } from 'react-icons/md';
 
 const Footer = () => {
-  // useLocation gibt uns den aktuellen URL-Pfad, um aktive Links zu erkennen
+  // Get current URL path to detect active links
   const location = useLocation();
-  // Ermittelt das aktuelle Jahr für das Copyright
+  // Get current year for copyright text
   const currentYear = new Date().getFullYear();
   
-  // Navigation-Links mit Icons für die mobile Navigation
-  // Wir definieren hier sowohl die Ziel-URL als auch das anzuzeigende Icon
+  // Navigation links with icons for mobile navigation
   const navLinks = [
     { to: "/", label: "Habits", icon: MdHome },
     { to: "/calendar", label: "Calendar", icon: MdCalendarMonth },
@@ -19,7 +18,7 @@ const Footer = () => {
 
   return (
     <>
-      {/* Standard-Footer - nur auf Desktop-Geräten sichtbar */}
+      {/* Standard footer - only visible on desktop */}
       <footer className="hidden md:block mt-auto py-4 bg-white shadow-sm text-center text-sm text-gray-500 dark:bg-gray-800 dark:text-gray-400 transition-opacity duration-300 ease-in-out">
         <div className="container mx-auto px-4">
           <p>© {currentYear} Habit Tracker | Alle Rechte vorbehalten</p>
@@ -31,15 +30,15 @@ const Footer = () => {
         </div>
       </footer>
       
-      {/* Mobile Navigation - nur auf mobilen Geräten sichtbar */}
+      {/* Mobile navigation - only visible on mobile devices */}
       <nav className="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-lg z-40 transition-transform duration-300 ease-in-out">
-        {/* Grid-Layout für gleichmäßige Verteilung der Navigation-Links */}
+        {/* Grid layout for even distribution of navigation links */}
         <div className="grid h-16 grid-cols-5 mx-auto">
-          {/* Für jeden Link in unserem Array generieren wir ein Navigationselement */}
+          {/* Generate navigation element for each link */}
           {navLinks.map((link) => {
-            // Prüft, ob dieser Link dem aktuellen Pfad entspricht
+            // Check if this link matches current path
             const isActive = location.pathname === link.to;
-            // Weist dem Icon-Komponenten-Namen eine Variable zu
+            // Assign icon component to variable
             const Icon = link.icon;
             
             return (
@@ -47,13 +46,13 @@ const Footer = () => {
                 key={link.to}
                 to={link.to}
                 className={`inline-flex flex-col items-center justify-center ${
-                  // Unterschiedliches Styling für aktive und inaktive Links
+                  // Different styling for active vs inactive links
                   isActive ? 'text-blue-600 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-500'
                 }`}
               >
-                {/* Rendert das Icon */}
+                {/* Render the icon */}
                 <Icon className="w-6 h-6 mb-1" />
-                {/* Zeigt den Namen des Links in kleiner Schrift an */}
+                {/* Display link name in small text */}
                 <span className="text-xs">{link.label}</span>
               </Link>
             );

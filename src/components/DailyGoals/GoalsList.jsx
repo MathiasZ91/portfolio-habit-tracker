@@ -1,10 +1,4 @@
-// GoalsList:
-
-// Zeigt die Liste der Habits zum Abhaken an
-// Hat einen "Reset"-Button, um zum Setup zurückzukehren
-// Löst die Feier aus, wenn alle Habits erledigt sind
-
-
+// Shows habit checklist with reset button and celebration on completion
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Button from '../common/Button';
@@ -12,20 +6,14 @@ import GoalItem from './GoalItem';
 import CelebrationModal from './CelebrationModal';
 
 function GoalsList({ habits, completedHabits, onToggleHabit, allCompleted, onReset }) {
-  // State für das Anzeigen der Feier-Modal
   const [showCelebration, setShowCelebration] = useState(false);
 
-  // Effekt, der die Feier auslöst, wenn alle Habits erledigt sind
+  // Show celebration when all habits are completed
   useEffect(() => {
     if (allCompleted && habits.length > 0) {
       setShowCelebration(true);
     }
   }, [allCompleted, habits.length]);
-
-  // Feier-Modal schließen
-  const handleCloseCelebration = () => {
-    setShowCelebration(false);
-  };
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
@@ -50,13 +38,14 @@ function GoalsList({ habits, completedHabits, onToggleHabit, allCompleted, onRes
         </div>
       )}
 
-      {/* Feier-Modal, wenn alle Habits erledigt sind */}
       {showCelebration && (
-        <CelebrationModal onClose={handleCloseCelebration} />
+        <CelebrationModal onClose={() => setShowCelebration(false)} />
       )}
     </div>
   );
 }
+
+// PropTypes definition
 GoalsList.propTypes = {
   habits: PropTypes.arrayOf(PropTypes.string).isRequired,
   completedHabits: PropTypes.arrayOf(PropTypes.number).isRequired,

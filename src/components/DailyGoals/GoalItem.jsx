@@ -1,18 +1,18 @@
 //GoalItem:
 
-//Stellt einen einzelnen Habit-Button dar
-// Ändert sein Aussehen je nach Status (erledigt/nicht erledigt)
-// Reagiert auf Klicks, um den Status zu ändern
+// Represents a single habit button
+// Changes appearance based on status (completed/not completed)
+// Responds to clicks to change status
 
 function GoalItem({ habit, completed, onToggle }) {
-  // Unterschiedliche Stile für erledigte und nicht erledigte Habits
+  // Different styles for completed and uncompleted habits
   const buttonClasses = `
     w-full p-4 rounded-lg shadow-sm transition-all duration-200 
     ${completed 
       ? 'bg-gray-200 text-gray-600 border-green-500 border-2' 
       : 'bg-white text-gray-900 border border-gray-200 hover:border-blue-500'}
   `;
-
+ 
   return (
     <button
       className={buttonClasses}
@@ -25,14 +25,14 @@ function GoalItem({ habit, completed, onToggle }) {
       </div>
     </button>
   );
-}
-
-import PropTypes from 'prop-types';
-
-GoalItem.propTypes = {
+ }
+ 
+ import PropTypes from 'prop-types';
+ 
+ GoalItem.propTypes = {
   habit: PropTypes.string.isRequired,
   completed: PropTypes.bool.isRequired,
   onToggle: PropTypes.func.isRequired,
-};
-
-export default GoalItem;
+ };
+ 
+ export default GoalItem;

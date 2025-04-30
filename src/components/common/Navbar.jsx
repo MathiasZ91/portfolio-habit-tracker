@@ -3,37 +3,36 @@ import { useEffect } from 'react';
 import ProfileButton from '../common/ProfileButton';
 
 /**
- * Navigationskomponente mit responsivem Design
- * - Zeigt Tabs auf Desktop-Geräten
- * - Zeigt ein Dropdown-Menü auf Mobilgeräten
- * - Hebt die aktive Route hervor
+ * Responsive navigation component
+ * - Shows tabs on desktop devices
+ * - Shows dropdown menu on mobile
+ * - Highlights active route
  */
 const Navbar = () => {
-  // Der useLocation-Hook gibt uns Zugriff auf den aktuellen URL-Pfad
-  // Dadurch wissen wir, welcher Navigationspunkt als aktiv hervorgehoben werden soll
+  // Get current URL path to highlight active navigation item
   const location = useLocation();
   
-  // Streak aus dem localStorage laden und regelmäßig aktualisieren
+  // Load streak from localStorage and update regularly
   useEffect(() => {
     const updateStreak = () => {
       const storedStreak = localStorage.getItem('habitsStreak');
       if (storedStreak) {
-        // Streak-Wert wird aus dem localStorage geladen, aber nicht verwendet
+        // Load streak value from localStorage (not used yet)
         parseInt(JSON.parse(storedStreak), 10);
       }
     };
     
-    // Initial laden
+    // Initial load
     updateStreak();
     
-    // Regelmäßiges Überprüfen statt Event-Listener
+    // Regular checking instead of event listener
     const intervalId = setInterval(updateStreak, 1000);
     
     return () => clearInterval(intervalId);
   }, []);
   
-  // Navigationsdaten in einem Array für einfache Wartung
-  // Wenn du Navigationspunkte hinzufügen/entfernen möchtest, ändere einfach dieses Array
+  // Navigation data in array for easy maintenance
+  // To add/remove navigation items, just modify this array
   const navLinks = [
     { to: "/", label: "Daily Habits" },
     { to: "/calendar", label: "Calendar" },
@@ -44,22 +43,20 @@ const Navbar = () => {
 
   return (
     <nav className="hidden md:block fixed top-0 left-0 w-full bg-white shadow-sm z-40 transition-opacity duration-300 ease-in-out">
-      {/* Mobile Navigation (nur auf kleinen Bildschirmen sichtbar) */}
-      {/* Die Klasse sm:hidden versteckt dieses Element auf Bildschirmen, die breiter als 'small' sind */}
+      {/* Mobile navigation (only visible on small screens) */}
       <div className="sm:hidden">
         <label htmlFor="tabs" className="sr-only">Select your tab</label>
         <select 
           id="tabs" 
-          // Umfangreiche Tailwind-Klassen für das Styling des Dropdowns
           className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          // Setze den aktuellen Pfad als ausgewählten Wert
+          // Set current path as selected value
           value={location.pathname}
-          // Wenn der Benutzer eine Option auswählt, navigiere zu diesem Pfad
+          // Navigate to selected path when user picks an option
           onChange={(e) => {
             window.location.href = e.target.value;
           }}
         >
-          {/* Generiere Optionen aus unseren Navigationsdaten */}
+          {/* Generate options from navigation data */}
           {navLinks.map((link) => (
             <option key={link.to} value={link.to}>
               {link.label}
@@ -68,51 +65,48 @@ const Navbar = () => {
         </select>
       </div>
 
-      {/* Desktop Navigation (auf kleinen Bildschirmen ausgeblendet) */}
-      {/* Die Klasse 'hidden' blendet es standardmäßig aus, aber 'sm:flex' zeigt es auf 'small' Bildschirmen und größer an */}
+      {/* Desktop navigation (hidden on small screens) */}
       <div className="flex justify-between items-center mx-4">
         <ul className="hidden text-sm font-medium text-center text-gray-500 rounded-lg shadow-sm sm:flex dark:divide-gray-700 dark:text-gray-400">
-          {/* Generiere Tabs aus unseren Navigationsdaten */}
+          {/* Generate tabs from navigation data */}
           {navLinks.map((link, index) => {
-            // Prüfe, ob dieser Link mit dem aktuellen URL-Pfad übereinstimmt
+            // Check if link matches current URL path
             const isActive = location.pathname === link.to;
-            // Spezielles Styling für erste und letzte Elemente (abgerundete Ecken)
+            // Special styling for first and last elements (rounded corners)
             const isFirst = index === 0;
             const isLast = index === navLinks.length - 1;
             
-            // Beginne mit dem Aufbau des className-Strings
+            // Start building className string
             let className = "inline-block w-full p-4 ";
             
-            // Füge Stile basierend auf dem aktiven Zustand hinzu
+            // Add styles based on active state
             if (isActive) {
-              // Styling für aktive Links (dunklerer Hintergrund usw.)
+              // Styling for active links (darker background etc.)
               className += "text-gray-900 bg-gray-100 focus:ring-4 focus:ring-blue-300 active focus:outline-none dark:bg-gray-700 dark:text-white ";
             } else {
-              // Styling für inaktive Links mit Hover-Effekten
+              // Styling for inactive links with hover effects
               className += "bg-white hover:text-gray-700 hover:bg-gray-50 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700 ";
             }
             
-            // Füge positionsspezifische Stile hinzu (Ränder und abgerundete Ecken)
+            // Add position-specific styles (borders and rounded corners)
             if (isFirst) {
-              // Erstes Element bekommt abgerundete Ecken links
+              // First element gets rounded corners on left
               className += "border-r border-gray-200 dark:border-gray-700 rounded-s-lg ";
             } else if (isLast) {
-              // Letztes Element bekommt abgerundete Ecken rechts
+              // Last element gets rounded corners on right
               className += "border-s-0 border-gray-200 dark:border-gray-700 rounded-e-lg ";
             } else {
-              // Mittlere Elemente bekommen Ränder auf der rechten Seite
+              // Middle elements get borders on right side
               className += "border-r border-gray-200 dark:border-gray-700 ";
             }
             
-           
-            
-            // Standard-Link ohne Streak-Anzeige
+            // Standard link without streak display
             return (
               <li key={link.to} className="w-full focus-within:z-10">
                 <Link 
                   to={link.to} 
                   className={className}
-                  // aria-current verbessert die Barrierefreiheit, indem es die aktuelle Seite kennzeichnet
+                  // aria-current improves accessibility by marking current page
                   aria-current={isActive ? "page" : undefined}
                 >
                   {link.label}

@@ -6,48 +6,45 @@ function EyeCareTimer() {
     const { updateTimer, getTimerState } = useTimer();
     const timerType = 'eyecare';
     
-    // Constants for the 20-20-20 rule
+    // 20-20-20 rule constants
     const WORK_TIME = 20 * 60; // 20 minutes in seconds
     const BREAK_TIME = 20; // 20 seconds
 
     // Get initial state from context
     const contextState = getTimerState(timerType);
     
-    // States
+    // Core state management
     const [timeLeft, setTimeLeft] = useState(contextState.timeLeft || WORK_TIME);
     const [isRunning, setIsRunning] = useState(contextState.isRunning || false);
     const [isWorkPhase, setIsWorkPhase] = useState(contextState.isWorkPhase || true);
 
-    // Refs for timestamp-based timing
+    // Refs for accurate timing
     const timerRef = useRef(null);
     const endTimeRef = useRef(null);
 
-    // Restore timer state from localStorage on component mount
+    // Load timer state from localStorage on mount
     useEffect(() => {
         const savedState = localStorage.getItem(`${timerType}_timer_state`);
         
         if (savedState) {
             try {
                 const parsedState = JSON.parse(savedState);
-                
-                // Check if the saved state is still valid (not too old)
                 const now = Date.now();
                 
                 if (parsedState.endTime && parsedState.endTime > now) {
-                    // Valid timer state that hasn't completed yet
+                    // Resume valid timer state
                     endTimeRef.current = parsedState.endTime;
                     setTimeLeft(Math.ceil((parsedState.endTime - now) / 1000));
                     setIsRunning(parsedState.isRunning);
                     setIsWorkPhase(parsedState.isWorkPhase);
                     
-                    // Update the context
                     updateTimer(timerType, {
                         isRunning: parsedState.isRunning,
                         timeLeft: Math.ceil((parsedState.endTime - now) / 1000),
                         isWorkPhase: parsedState.isWorkPhase
                     });
                 } else if (parsedState.isRunning) {
-                    // Timer completed while away, handle phase transition
+                    // Handle phase transition if timer completed while away
                     const newPhase = !parsedState.isWorkPhase;
                     const newTime = newPhase ? WORK_TIME : BREAK_TIME;
                     
@@ -55,18 +52,16 @@ function EyeCareTimer() {
                     setTimeLeft(newTime);
                     setIsRunning(true);
                     
-                    // Set new end time
                     const newEndTime = Date.now() + (newTime * 1000);
                     endTimeRef.current = newEndTime;
                     
-                    // Update the context
                     updateTimer(timerType, {
                         isRunning: true,
                         timeLeft: newTime,
                         isWorkPhase: newPhase
                     });
                     
-                    // Show notification if phase changed
+                    // Show notification if permissions granted
                     if (Notification.permission === "granted") {
                         new Notification(newPhase ? "Back to Work" : "Eye Break Time!", {
                             body: newPhase 
@@ -82,7 +77,7 @@ function EyeCareTimer() {
         }
     }, [timerType, WORK_TIME, BREAK_TIME, updateTimer]);
 
-    // Save timer state to localStorage when it changes
+    // Save timer state to localStorage
     useEffect(() => {
         if (isRunning && endTimeRef.current) {
             localStorage.setItem(`${timerType}_timer_state`, JSON.stringify({
@@ -97,7 +92,7 @@ function EyeCareTimer() {
         }
     }, [isRunning, timeLeft, timerType, isWorkPhase]);
 
-    // Debounced update timer function
+    // Reduce context updates with debounce
     const debouncedUpdateTimer = useMemo(() => 
         _.debounce((type, state) => {
             updateTimer(type, state);
@@ -105,7 +100,7 @@ function EyeCareTimer() {
         [updateTimer]
     );
 
-    // Toggle timer with debounce and careful state management
+    // Start/pause timer
     const toggleTimer = useCallback(() => {
         console.group('Eye Care Timer Debug');
         console.log('Current State:', {
@@ -115,7 +110,7 @@ function EyeCareTimer() {
             timerType
         });
 
-        // Prevent multiple rapid toggles
+        // Request notification permission if needed
         if (!isRunning && Notification.permission !== "granted" && Notification.permission !== "denied") {
             Notification.requestPermission();
         }
@@ -125,7 +120,6 @@ function EyeCareTimer() {
             
             console.log('New Running State:', newState);
             
-            // Update context with the new state
             debouncedUpdateTimer(timerType, {
                 isRunning: newState,
                 timeLeft: timeLeft,
@@ -138,7 +132,7 @@ function EyeCareTimer() {
         console.groupEnd();
     }, [isRunning, debouncedUpdateTimer, timerType, timeLeft, isWorkPhase]);
 
-    // Timer tick logic
+    // Handle timer completion and phase switching
     const timerTick = useCallback(() => {
         if (!endTimeRef.current) return;
         
@@ -146,7 +140,7 @@ function EyeCareTimer() {
         const diff = Math.max(0, Math.round((endTimeRef.current - now) / 1000));
         
         if (diff <= 0) {
-            // Play completion sound
+            // Play alert sound
             try {
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const oscillator = audioContext.createOscillator();
@@ -165,28 +159,24 @@ function EyeCareTimer() {
                 console.error("Error playing sound:", error);
             }
             
-            // Vibrate if supported
+            // Vibrate device if supported
             if ('vibrate' in navigator) {
                 navigator.vibrate(200);
             }
             
-            // Switch phases
+            // Switch between work and break phases
             if (isWorkPhase) {
-                // Work phase completed, switch to break
+                // Switch to break phase
                 setIsWorkPhase(false);
                 setTimeLeft(BREAK_TIME);
-                
-                // Set new end time
                 endTimeRef.current = Date.now() + (BREAK_TIME * 1000);
                 
-                // Update context
                 updateTimer(timerType, {
                     isRunning: true,
                     timeLeft: BREAK_TIME,
                     isWorkPhase: false
                 });
                 
-                // Notification
                 if (Notification.permission === "granted") {
                     new Notification("Eye Break Time!", {
                         body: "Look at something 20 feet away for 20 seconds",
@@ -194,21 +184,17 @@ function EyeCareTimer() {
                     });
                 }
             } else {
-                // Break phase completed, switch to work
+                // Switch to work phase
                 setIsWorkPhase(true);
                 setTimeLeft(WORK_TIME);
-                
-                // Set new end time
                 endTimeRef.current = Date.now() + (WORK_TIME * 1000);
                 
-                // Update context
                 updateTimer(timerType, {
                     isRunning: true,
                     timeLeft: WORK_TIME,
                     isWorkPhase: true
                 });
                 
-                // Notification
                 if (Notification.permission === "granted") {
                     new Notification("Back to Work", {
                         body: "Time to resume working",
@@ -217,10 +203,9 @@ function EyeCareTimer() {
                 }
             }
         } else {
-            // Update displayed time
+            // Update timer display
             setTimeLeft(diff);
             
-            // Periodic context update
             updateTimer(timerType, {
                 timeLeft: diff,
                 isRunning,
@@ -229,44 +214,41 @@ function EyeCareTimer() {
         }
     }, [isWorkPhase, isRunning, updateTimer, timerType, WORK_TIME, BREAK_TIME]);
 
-    // Timer start/stop effect - IMPROVED VERSION
+    // Core timer functionality
     useEffect(() => {
         if (isRunning) {
-            // Only set the end time if it's not already set
+            // Set end time if not already set
             if (!endTimeRef.current) {
                 const endTime = Date.now() + (timeLeft * 1000);
                 endTimeRef.current = endTime;
             }
             
             if (!timerRef.current) {
-                // Create the interval that will update the timer
+                // Create timer update interval
                 timerRef.current = setInterval(() => {
                     const now = Date.now();
                     const diff = Math.max(0, Math.round((endTimeRef.current - now) / 1000));
                     
                     if (diff <= 0) {
-                        // Timer completed
                         timerTick();
                     } else {
-                        // Update displayed time
                         setTimeLeft(diff);
                     }
                 }, 500);
             }
         } else {
-            // Clear interval when timer is stopped
+            // Clear timer when stopped
             if (timerRef.current) {
                 clearInterval(timerRef.current);
                 timerRef.current = null;
             }
             
-            // Clear end time when stopped
             if (!isRunning) {
                 endTimeRef.current = null;
             }
         }
         
-        // Cleanup on component unmount
+        // Cleanup on unmount
         return () => {
             if (timerRef.current) {
                 clearInterval(timerRef.current);
@@ -275,27 +257,24 @@ function EyeCareTimer() {
         };
     }, [isRunning, timerTick, timeLeft]);
 
-    // Handle visibility change (tab/app switching) - IMPROVED VERSION
+    // Handle app/tab visibility changes 
     useEffect(() => {
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
                 if (isRunning && endTimeRef.current) {
-                    // Calculate the current time left based on the end time
+                    // Recalculate time when tab becomes visible
                     const now = Date.now();
                     const diff = Math.max(0, Math.round((endTimeRef.current - now) / 1000));
                     
                     if (diff <= 0) {
-                        // Timer has elapsed while away - trigger phase change
                         timerTick();
                     } else {
-                        // Timer is still running - update the displayed time to reflect elapsed time
                         setTimeLeft(diff);
                     }
                 }
             }
         };
         
-        // Add the event listener
         document.addEventListener('visibilitychange', handleVisibilityChange);
         
         return () => {
@@ -303,7 +282,7 @@ function EyeCareTimer() {
         };
     }, [isRunning, timerTick]);
 
-    // Reset timer
+    // Reset timer to initial state
     const resetTimer = useCallback(() => {
         if (timerRef.current) {
             clearInterval(timerRef.current);
@@ -315,25 +294,23 @@ function EyeCareTimer() {
         setTimeLeft(WORK_TIME);
         endTimeRef.current = null;
         
-        // Update context
         updateTimer(timerType, {
             isRunning: false,
             timeLeft: WORK_TIME,
             isWorkPhase: true
         });
         
-        // Clear localStorage
         localStorage.removeItem(`${timerType}_timer_state`);
     }, [updateTimer, timerType, WORK_TIME]);
 
-    // Format time as MM:SS
+    // Format seconds to MM:SS display
     const formatTime = useCallback((seconds) => {
         const minutes = Math.floor(seconds / 60);
         const secs = seconds % 60;
         return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }, []);
 
-    // Display phase in the UI
+    // Current phase label
     const phaseDisplay = isWorkPhase ? "Work Phase" : "Eye Break";
 
     return (

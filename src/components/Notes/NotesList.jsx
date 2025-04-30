@@ -1,7 +1,7 @@
-
 import NotesItem from "./NotesItem";
 import PropTypes from "prop-types";
 
+// Shows all notes or empty message if none exist
 const NotesList = ({ notes, toggleComplete, deleteNote }) => {
   if (notes.length === 0) {
     return <p className="text-center text-gray-500 italic mt-4">No notes yet. Add one above!</p>;
