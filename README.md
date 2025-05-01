@@ -16,10 +16,6 @@ rule to reduce eye strain
 - **Multiple Profiles**: Switch between different user profiles
 - **PWA Support**: Install as a standalone app on mobile and desktop
 
-## Known Issues
-
-Timer Bug: There is a known issue where the timer may not start correctly when the Start/Stop button is clicked multiple times rapidly. This is due to the state management logic that controls the start and stop states. I'm actively working on a fix to address this issue and improve the timer's functionality.
-
 ## Technologies Used
 
 - React 18
@@ -130,6 +126,12 @@ Example deployment to Netlify:
 - Social sharing features
 - Statistics and analytics
 - Customizable themes
+
+
+## Known Issues
+
+Timer Bug: There is a known issue where the timer may not start correctly when the Start/Stop button is clicked multiple times rapidly. This is due to the state management logic that controls the start and stop states. I'm actively working on a fix to address this issue and improve the timer's functionality.
+
 
 ## License
 
