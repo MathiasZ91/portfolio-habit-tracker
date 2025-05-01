@@ -2,7 +2,7 @@
 
 A modern web application for tracking daily habits, managing your time with productivity timers, and keeping notes.
 
-![Screenshot of Habit Tracker](https://via.placeholder.com/800x400?text=Habit+Tracker+Screenshot)
+![Screenshot of Habit Tracker](./public/screenshot.png)
 
 ## Features
 
